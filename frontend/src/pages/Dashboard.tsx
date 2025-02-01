@@ -1,32 +1,40 @@
-import { useEffect, useState } from 'react';
-import { Container, Card, Button, Row, Col } from 'react-bootstrap';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/Dashboard.css';
 
 const Dashboard = () => {
-  const [trips, setTrips] = useState([]);
+  const navigate = useNavigate();
 
+  // ✅ Redirect if not logged in
   useEffect(() => {
-    fetch('http://localhost:5000/trips')
-      .then((res) => res.json())
-      .then((data) => setTrips(data));
-  }, []);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
 
   return (
-    <Container className="mt-5">
-      <h1 className="text-center text-primary mb-4">Your Trips</h1>
-      <Row>
-        {trips.map((trip) => (
-          <Col md={4} key={trip.id} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>{trip.destination}</Card.Title>
-                <Card.Text>{trip.date}</Card.Text>
-                <Button variant="success">View Trip</Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-    </Container>
+    <div className="dashboard-container">
+      {/* ✅ Sidebar */}
+      <div className="sidebar">
+        <h2>TravelApp</h2>
+        <ul>
+          <li onClick={() => navigate('/my-trips')}>My Trips</li>
+          <li onClick={() => navigate('/upload-post')}>Upload Post</li>
+          <li onClick={() => navigate('/user-profile')}>User Profile</li>
+          <li onClick={handleLogout} className="logout">Logout</li>
+        </ul>
+      </div>
+
+      {/* ✅ Background Map Image (Handled in CSS) */}
+      <div className="map-container"></div>
+    </div>
   );
 };
 

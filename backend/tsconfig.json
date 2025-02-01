@@ -1,11 +1,14 @@
 {
-    "compilerOptions": {
-      "module": "NodeNext",  // ✅ Ensures ES module support
-      "moduleResolution": "NodeNext",
-      "target": "ESNext",
-      "esModuleInterop": true,  // ✅ Ensures compatibility with CommonJS modules
-      "strict": true,
-      "outDir": "dist"
-    }
-  }
-  
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+
+  },
+  "include": ["src/**/*"]
+}

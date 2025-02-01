@@ -1,27 +1,50 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import * as dotenv from 'dotenv';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
+import app from './app';
+import swaggerUI from "swagger-ui-express"
+import swaggerJsDoc from "swagger-jsdoc"
 
-dotenv.config();
-const app = require('express'); // ✅ Works in CommonJS environments
+const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
-app.use(express.json());
-app.use(cookieParser());
-
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI!)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.error('❌ MongoDB Connection Error:', err));
-
-// Import Routes
-import authRoutes from './routes/authroutes';
-
-app.use('/auth', authRoutes);
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+if (process.env.NODE_ENV == "development") {
+ const options = {
+ definition: {
+ openapi: "3.0.0",
+ info: {
+ title: "Web Dev 2022 REST API",
+ version: "1.0.0",
+ description: "REST server including authentication using JWT",
+ },
+ servers: [{url: "http://localhost:3000",},]
+ ,
+ components: {
+    schemas: {
+      Post: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          content: { type: "string" },
+          userId: { type: "string" },
+        },
+      },
+      PostInput: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          content: { type: "string" },
+        },
+        required: ["title", "content"],
+      },
+    },
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
+  },
+},
+ apis: ["./src/routes/*.ts"],};
+ const specs = swaggerJsDoc(options);
+ app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+}
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

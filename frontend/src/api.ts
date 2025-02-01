@@ -1,16 +1,27 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000', // Backend API
-  withCredentials: true, // Ensures cookies (refresh token) are sent
+  baseURL: 'http://localhost:3000',
+  withCredentials: true,
 });
 
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 export const login = (data: { email: string; password: string }) =>
-  API.post('/auth/login', data);
+  API.post('/users/login', data);
 
-export const register = (data: { email: string; password: string }) =>
-  API.post('/auth/register', data);
+export const register = (data: { email: string; username: string; password: string }) =>
+  API.post('/users/register', data);
 
-export const refreshToken = () => API.post('/auth/refresh');
+export const refreshToken = () => API.post('/users/refresh');
 
-export const logout = () => API.post('/auth/logout');
+export const logout = () => API.post('/users/logout');

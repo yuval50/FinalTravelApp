@@ -1,16 +1,17 @@
-
-
-import { Router } from 'express';
-import authController from "../controllers/AuthController";
-
-const router = Router();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const AuthController_1 = __importDefault(require("../controllers/AuthController"));
+const router = (0, express_1.Router)();
 /**
  * @swagger
  * tags:
  *   - name: Auth
  *     description: The Authentication API
  */
-
 /**
  * @swagger
  * /users/register:
@@ -31,7 +32,6 @@ const router = Router();
  *             schema:
  *               $ref: '#/models/User'
  */
-
 /**
  * @swagger
  * /users/login:
@@ -52,7 +52,6 @@ const router = Router();
  *             schema:
  *               $ref: '#/models/Tokens'
  */
-
 /**
  * @swagger
  * /users/logout:
@@ -66,10 +65,8 @@ const router = Router();
  *       200:
  *         description: Logout completed successfully
  */
-
-router.post('/login', authController.login);
-router.post('/register',authController.register);
-router.post('/logout',authController.logout);
-router.post('/refresh',authController.refresh);
-
-export default router;
+router.post('/login', AuthController_1.default.login);
+router.post('/register', AuthController_1.default.register);
+router.post('/logout', AuthController_1.default.logout);
+router.post('/refresh', AuthController_1.default.refresh);
+exports.default = router;
