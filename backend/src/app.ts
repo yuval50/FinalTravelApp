@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import userRoutes from './routes/AuthRoutes';
+import userRoutes from './routes/authroutes';
 import postRoutes from './routes/postRoutes';
 import commentRoutes from './routes/commentRoutes';
 

@@ -25,3 +25,4 @@ export const register = (data: { email: string; username: string; password: stri
 export const refreshToken = () => API.post('/users/refresh');
 
 export const logout = () => API.post('/users/logout');
+export const getUsernameById = (userId: string) => API.get(`/users/${userId}`);
