@@ -6,7 +6,7 @@ import {
   updateComment,
   deleteComment,
 } from '../controllers/CommentController';
-import { authMiddleware } from '../controllers/AuthController';
+import { authMiddleware } from '../controllers/authcontroller';
 
 const router = Router();
 

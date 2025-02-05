@@ -6,7 +6,7 @@ import {
   updatePost,
   deletePost,
 } from '../controllers/PostController';
-import { authMiddleware } from '../controllers/AuthController';
+import { authMiddleware } from '../controllers/authcontroller';
 
 const router = Router();
 /**

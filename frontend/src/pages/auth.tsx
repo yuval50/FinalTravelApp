@@ -15,7 +15,7 @@ const Auth = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/dashboard');
+      navigate('/trips');
     }
   }, [navigate]);
 
@@ -23,20 +23,24 @@ const Auth = () => {
     e.preventDefault();
     try {
       if (isRegister) {
+        // Register new user
         await register({ email, username, password });
         alert('Account created! Please log in.');
-        setIsRegister(false);
+        setIsRegister(false);  // Switch to login after successful registration
       } else {
+        // Login existing user
         const res = await login({ email, password });
 
-        // ✅ Store token in localStorage
+        // ✅ Store token and user info in localStorage
         localStorage.setItem('token', res.data.accessToken);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
+        localStorage.setItem('user', JSON.stringify(res.data._id))
+    
+        console.log('Response data:', res.data);
 
-        navigate('/dashboard');
+        navigate('/trips');
       }
     } catch (error) {
-      alert('Error: ' + (error.data|| 'Something went wrong'));
+      alert('Error: ' + ((error as any).data || 'Something went wrong'));
     }
   };
 

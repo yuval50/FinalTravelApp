@@ -8,13 +8,19 @@ import { Document } from 'mongoose';
 
 
 
-
-
-
-
-
-
-
+export const getUsernameById = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const user = await userModel.findById(req.params.id);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+        res.json({ username: user.username });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 
 
@@ -224,5 +230,5 @@ export default {
     register,
     login,
     refresh,
-    logout,
+    logout,getUsernameById
 };

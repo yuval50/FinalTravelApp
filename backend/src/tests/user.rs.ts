@@ -16,7 +16,7 @@ describe('User Endpoints', () => {
     await mongoose.connection.close();
   });
 
-  it(' register a new user', async () => {
+  it('register a new user', async () => {
     const res = await request(app).post('/users/register').send({
       username: 'user1',
       email: 'user1@gmail.com',
@@ -25,7 +25,7 @@ describe('User Endpoints', () => {
     expect(res.statusCode).toEqual(200);
   });
 
-  it(' login the user', async () => {
+  it('login the user', async () => {
     await request(app).post('/users/register').send({
       username: 'user1',
       email: 'user1@gmail.com',
@@ -39,5 +39,17 @@ describe('User Endpoints', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('accessToken');
     expect(res.body).toHaveProperty('refreshToken');
+  });
+
+  it('fetch user by ID', async () => {
+    const user = await User.create({
+      username: 'user2',
+      email: 'user2@gmail.com',
+      password: 'user2password',
+    });
+
+    const res = await request(app).get(`/users/${user._id}`);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('username', 'user2');
   });
 });

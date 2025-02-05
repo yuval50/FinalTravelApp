@@ -1,8 +1,7 @@
 
 
 import { Router } from 'express';
-import authController from "../controllers/AuthController";
-
+import authController from "../controllers/authcontroller";
 const router = Router();
 /**
  * @swagger
@@ -67,9 +66,42 @@ const router = Router();
  *         description: Logout completed successfully
  */
 
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Fetches the username by user ID
+ *     tags: [Auth]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: The user ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the user's username
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 username:
+ *                   type: string
+ *                   example: "john_doe"  
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
+
 router.post('/login', authController.login);
 router.post('/register',authController.register);
 router.post('/logout',authController.logout);
 router.post('/refresh',authController.refresh);
+router.get('/:id', authController.getUsernameById);
 
 export default router;
