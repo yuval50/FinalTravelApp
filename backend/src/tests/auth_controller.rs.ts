@@ -56,4 +56,5 @@ describe("Auth Tests", () => {
     expect(response.body).toHaveProperty('accessToken');
     expect(response.body).toHaveProperty('refreshToken');
   });
+  
 });

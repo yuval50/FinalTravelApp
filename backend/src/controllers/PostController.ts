@@ -3,9 +3,9 @@ import PostModel from '../models/Post';
 
 export const addPost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, content } = req.body;
+    const { title, content, location, rating, images } = req.body;
 
-    const userId = req.params.userId;
+    const userId = req.params.userId; // האם ה-UserId בא מה-params או ה-body? אם זה ב-body אז תשנה את זה.
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
@@ -15,6 +15,13 @@ export const addPost = async (req: Request, res: Response): Promise<void> => {
       title,
       content,
       userId,
+      location,
+      rating,
+      images,
+      likes: [],
+      commentsCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     res.status(201).json(newPost);
@@ -47,7 +54,12 @@ export const getPostById = async (req: Request, res: Response): Promise<void> =>
 
 export const updatePost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const post = await PostModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { title, content, location, rating, images } = req.body;
+    const post = await PostModel.findByIdAndUpdate(
+      req.params.id,
+      { title, content, location, rating, images, updatedAt: new Date() },
+      { new: true }
+    );
     if (!post) {
       res.status(404).json({ message: 'Post not found' });
       return;
