@@ -4,9 +4,8 @@ import postModel from "../models/Post";
 import userModel, { IUser } from "../models/User";
 import app from "../app";
 
-
-let accessToken: any
-let refreshToken: any
+let accessToken: any;
+let refreshToken: any;
 type User = IUser & { token?: string };
 const testUser: User = {
   username: "asd",
@@ -28,7 +27,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   console.log("Disconnecting MongoDB...");
-  await mongoose.connection.close()
+  await mongoose.connection.close();
   console.log("MongoDB disconnected.");
 });
 
@@ -50,7 +49,6 @@ beforeEach(async () => {
   expect(res.body).toHaveProperty('refreshToken');
   accessToken = res.body.accessToken;
   refreshToken = res.body.refreshToken;
-
 });
 
 describe("Posts Tests", () => {
@@ -67,39 +65,48 @@ describe("Posts Tests", () => {
       .send({
         title: "Test Post",
         content: "Test Content",
+        location: "Tel Aviv",
+        rating: 4,
+        images: [],
+        commentsCount: 0
       });
 
     expect(response.statusCode).toBe(201);
     expect(response.body.title).toBe("Test Post");
     expect(response.body.content).toBe("Test Content");
+    expect(response.body.location).toBe("Tel Aviv");
+    expect(response.body.rating).toBe(4);
+    expect(response.body.commentsCount).toBe(0);
     postId = response.body._id;
   });
-
-  // test("Test get post by owner", async () => {
-  //   const response = await request(app).get(`/posts?owner=${testUser._id}`);
-  //   expect(response.statusCode).toBe(200);
-  //   expect(response.body.length).toBe(1);
-  //   expect(response.body[0].title).toBe("Test Post");
-  //   expect(response.body[0].content).toBe("Test Content");
-  // });
 
   test("Test get post by id", async () => {
     const response = await request(app).get(`/posts/${postId}`);
     expect(response.statusCode).toBe(200);
     expect(response.body.title).toBe("Test Post");
     expect(response.body.content).toBe("Test Content");
+    expect(response.body.location).toBe("Tel Aviv");
+    expect(response.body.rating).toBe(4);
+    expect(response.body.commentsCount).toBe(0);
   });
 
   test("Test Create Post 2", async () => {
     const response = await request(app)
       .post("/posts")
-      .set({ authorization: "Bearer " + accessToken })
+      .set('Authorization', `Bearer ${accessToken}`)
       .send({
         title: "Test Post 2",
         content: "Test Content 2",
+        location: "Haifa",
+        rating: 3,
+        images: [],
+        commentsCount: 0
       });
 
     expect(response.statusCode).toBe(201);
+    expect(response.body.title).toBe("Test Post 2");
+    expect(response.body.location).toBe("Haifa");
+    expect(response.body.rating).toBe(3);
   });
 
   test("Posts test get all 2", async () => {
@@ -111,7 +118,7 @@ describe("Posts Tests", () => {
   test("Test Delete Post", async () => {
     const response = await request(app)
       .delete(`/posts/${postId}`)
-      .set({ authorization: "Bearer " + accessToken });
+      .set('Authorization', `Bearer ${accessToken}`);
     expect(response.statusCode).toBe(200);
 
     const response2 = await request(app).get(`/posts/${postId}`);
@@ -121,7 +128,7 @@ describe("Posts Tests", () => {
   test("Test Create Post fail", async () => {
     const response = await request(app)
       .post("/posts")
-      .set({ authorization: "Bearer " + accessToken })
+      .set('Authorization', `Bearer ${accessToken}`)
       .send({
         content: "Test Content 2",
       });

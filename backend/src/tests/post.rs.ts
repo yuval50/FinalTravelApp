@@ -39,16 +39,27 @@ describe('Post Endpoints', () => {
       .send({
         title: 'My First Post',
         content: 'Content of the first post',
+        location: 'Tel Aviv',
+        rating: 4,
+        images: [],
+        commentsCount: 0
       });
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty('_id');
     expect(res.body.title).toEqual('My First Post');
+    expect(res.body.location).toEqual('Tel Aviv');
+    expect(res.body.rating).toEqual(4);
+    expect(res.body.commentsCount).toEqual(0);
   });
 
   it('should fetch all posts', async () => {
     await Post.create({
       title: 'My First Post',
       content: 'Content of the first post',
+      location: 'Tel Aviv',
+      rating: 4,
+      images: [],
+      commentsCount: 0,
       userId: new mongoose.Types.ObjectId(),
     });
 
@@ -56,5 +67,8 @@ describe('Post Endpoints', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toBeInstanceOf(Array);
     expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body[0].title).toEqual('My First Post');
+    expect(res.body[0].location).toEqual('Tel Aviv');
+    expect(res.body[0].rating).toEqual(4);
   });
 });

@@ -17,11 +17,19 @@ describe('User Endpoints', () => {
   });
 
   it('register a new user', async () => {
+    const existingUser = await User.findOne({ email: 'user1@gmail.com' });
+    if (existingUser) {
+      await User.deleteOne({ email: 'user1@gmail.com' }); // אם המשתמש כבר קיים, נמחק אותו
+    }
+
     const res = await request(app).post('/users/register').send({
       username: 'user1',
       email: 'user1@gmail.com',
       password: 'user1password',
     });
+
+    // הדפסת התגובה במקרה של שגיאה, תוכל לראות למה התקבלה שגיאה 400
+    console.log(res.body);
     expect(res.statusCode).toEqual(200);
   });
 
@@ -36,6 +44,7 @@ describe('User Endpoints', () => {
       email: 'user1@gmail.com',
       password: 'user1password',
     });
+
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('accessToken');
     expect(res.body).toHaveProperty('refreshToken');
@@ -52,4 +61,6 @@ describe('User Endpoints', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('username', 'user2');
   });
+
+  
 });

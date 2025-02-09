@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { addPost } from '../api';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/UploadPost.css";
 
@@ -9,17 +11,17 @@ const UploadPost: React.FC = () => {
   const [location, setLocation] = useState("");
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState<File[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]); // לאחסן את התוצאות מה-API
-  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false); // סטייט למעקב אחרי פתיחת הרשימה
+  const [suggestions, setSuggestions] = useState<string[]>([]); 
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);  
+  const navigate = useNavigate();
 
-  // פונקציה לחילוץ מיקום תמציתי (עיר ומדינה)
   const getShortLocation = (address: any) => {
     const city = address.city || address.town || address.village;
     const country = address.country;
     return city && country ? `${city}, ${country}` : city || country || "Unknown location";
   };
 
-  // חיפוש מיקומים באמצעות OpenStreetMap Nominatim
   const handleLocationChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocation(value);
@@ -36,25 +38,24 @@ const UploadPost: React.FC = () => {
         });
 
         const locationSuggestions = response.data.map((item: any) => {
-          // חילוץ המיקום התמציתי (עיר ומדינה)
           return getShortLocation(item.address);
         });
 
         setSuggestions(locationSuggestions);
-        setIsSuggestionsOpen(true); // פתח את הרשימה
+        setIsSuggestionsOpen(true); 
       } catch (error) {
         console.error("Error fetching location suggestions:", error);
       }
     } else {
       setSuggestions([]);
-      setIsSuggestionsOpen(false); // סגור את הרשימה אם אין תוצאות
+      setIsSuggestionsOpen(false);
     }
   };
 
   const handleLocationSelect = (suggestion: string) => {
     setLocation(suggestion);
-    setSuggestions([]);  // נסגור את הרשימה אחרי הבחירה
-    setIsSuggestionsOpen(false);  // עדכון כדי לסגור את הרשימה
+    setSuggestions([]);  
+    setIsSuggestionsOpen(false);  
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,9 +73,33 @@ const UploadPost: React.FC = () => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Post uploaded successfully!");
+
+    // בדיקה אם לא נבחר דירוג
+    if (rating === 0) {
+      alert("Please rate your experience before submitting.");
+      return;
+    }
+
+    const postData = {
+      title,
+      content,
+      location,
+      rating,
+      images: images.map((image) => URL.createObjectURL(image)),
+    };
+
+    try {
+      await addPost(postData);  
+      setUploadSuccess(true); 
+      setTimeout(() => {
+        navigate("/trips"); 
+      }, 1000);  
+    } catch (error) {
+      console.error("Try again :", error);
+      alert("Error uploading post");
+    }
   };
 
   const getRatingLabel = () => {
@@ -92,16 +117,14 @@ const UploadPost: React.FC = () => {
       <div className="container">
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="location" className="form-label">
-              City
-            </label>
+            <label htmlFor="location" className="form-label">City</label>
             <input
               type="text"
               className="form-control"
               id="location"
               placeholder="Enter location"
               value={location}
-              onChange={handleLocationChange} // עדכון כאן
+              onChange={handleLocationChange}
               required
             />
             {isSuggestionsOpen && suggestions.length > 0 && (
@@ -110,7 +133,7 @@ const UploadPost: React.FC = () => {
                   <li
                     key={index}
                     className="list-group-item"
-                    onClick={() => handleLocationSelect(suggestion)} // בחר מיקום מהרשימה
+                    onClick={() => handleLocationSelect(suggestion)}
                   >
                     {suggestion}
                   </li>
@@ -119,9 +142,7 @@ const UploadPost: React.FC = () => {
             )}
           </div>
           <div className="mb-3">
-            <label htmlFor="title" className="form-label">
-              Post Title
-            </label>
+            <label htmlFor="title" className="form-label">Post Title</label>
             <input
               type="text"
               className="form-control"
@@ -133,11 +154,9 @@ const UploadPost: React.FC = () => {
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="content" className="form-label">
-              Post Content
-            </label>
+            <label htmlFor="content" className="form-label">Post Content</label>
             <textarea
-              className="form-control" // עדכון פה
+              className="form-control"
               id="content"
               rows={4}
               placeholder="Write your post here..."
@@ -147,12 +166,10 @@ const UploadPost: React.FC = () => {
             ></textarea>
           </div>
           <div className="mb-3">
-            <label htmlFor="image" className="form-label">
-              Upload Images (up to 5)
-            </label>
+            <label htmlFor="image" className="form-label">Upload Images (up to 5)</label>
             <input
               type="file"
-              className="form-control" // עדכון פה
+              className="form-control"
               id="image"
               onChange={handleImageChange}
               accept="image/*"
@@ -199,6 +216,12 @@ const UploadPost: React.FC = () => {
             Submit Post
           </button>
         </form>
+
+        {uploadSuccess && (
+          <div className="alert alert-success mt-3" role="alert">
+            Post uploaded successfully! Redirecting...
+          </div>
+        )}
       </div>
     </div>
   );

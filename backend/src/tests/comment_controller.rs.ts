@@ -4,7 +4,7 @@ import commentModel from "../models/Comment";
 import postModel from "../models/Post";
 import userModel, { IUser } from "../models/User";
 import app from "../app";
-
+import { Console } from "console";
 
 let accessToken: string;
 let refreshToken: string;
@@ -52,9 +52,13 @@ beforeEach(async () => {
     .set('Authorization', `Bearer ${accessToken}`)
     .send({
       title: "Test Post",
-      content: "Test Content",
+        content: "Test Content",
+        location: "Tel Aviv",
+        rating: 4,
+        images: [],
+        commentsCount: 0
     });
-
+  console.log('Post id:', postRes.body._id);
   postId = postRes.body._id;
 });
 
@@ -67,18 +71,26 @@ describe("Comments Tests", () => {
         content: "Test Comment",
         postId: postId,
       });
-
+    console.log('Create post id :',postId);
     expect(response.statusCode).toBe(201);
     expect(response.body.content).toBe("Test Comment");
     commentId = response.body._id;
+  }); 
+  test("Test Get All Comments by Post ID", async () => { 
+    const response = await request(app)
+      .get(`/comments/${postId}`)
+      .set('Authorization', `Bearer ${accessToken}`);
+    //console.log('Get comments responseeeeeeeeeeee:', response.body);
+    console.log('THE FUCK POSDT ID:', postId);
+    expect(response.statusCode).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThanOrEqual(1);
+  
+    response.body.forEach((comment: any) => {
+      expect(comment.postId.toString()).toBe(postId); // ensure postId is correct
+    });
   });
-
-//   test("Test Get Comments by Post ID", async () => {
-//     const response = await request(app).get(`/comments/post/${postId}`);
-//     expect(response.statusCode).toBe(200);
-//     expect(response.body.length).toBe(1);
-//     expect(response.body[0].content).toBe("Test Comment");
-//   });
+ 
 
   test("Test Update Comment", async () => {
     const response = await request(app)
@@ -87,18 +99,19 @@ describe("Comments Tests", () => {
       .send({
         content: "Updated Comment",
       });
-
     expect(response.statusCode).toBe(200);
     expect(response.body.content).toBe("Updated Comment");
   });
+  test("Test Delete Comment", async () => {
 
-//   test("Test Delete Comment", async () => {
-//     const response = await request(app)
-//       .delete(`/comments/${commentId}`)
-//       .set('Authorization', `Bearer ${accessToken}`);
-//     expect(response.statusCode).toBe(200);
-
-//     const getResponse = await request(app).get(`/comments/post/${postId}`);
-//     expect(getResponse.body.length).toBe(0);
-//   });
+ const deleteResponse = await request(app)
+   .delete(`/comments/${commentId}`)
+   .set('Authorization', `Bearer ${accessToken}`);
+ expect(deleteResponse.statusCode).toBe(200);
+ expect(deleteResponse.body.message).toBe('Comment deleted successfully');
+ 
+ const response2 = await request(app).get(`/comments/${commentId}`)
+    .set('Authorization', `Bearer ${accessToken}`); 
+  expect(response2.statusCode).toBe(404);
+  })
 });

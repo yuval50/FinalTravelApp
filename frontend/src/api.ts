@@ -26,3 +26,5 @@ export const refreshToken = () => API.post('/users/refresh');
 
 export const logout = () => API.post('/users/logout');
 export const getUsernameById = (userId: string) => API.get(`/users/${userId}`);
+export const addPost = (data: { title: string; content: string; location: string; rating: number; images: string[] }) => API.post('/posts', data);
+export const getAllPosts = () => API.get('/posts');

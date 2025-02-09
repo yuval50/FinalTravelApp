@@ -1,8 +1,7 @@
-
-
 import { Router } from 'express';
 import authController from "../controllers/authcontroller";
 const router = Router();
+
 /**
  * @swagger
  * tags:
@@ -22,6 +21,10 @@ const router = Router();
  *         application/json:
  *           schema:
  *             $ref: '#/models/User'
+ *           example:
+ *             username: "john_doe"
+ *             email: "john@example.com"
+ *             password: "password123"
  *     responses:
  *       200:
  *         description: The newly created user
@@ -29,6 +32,10 @@ const router = Router();
  *           application/json:
  *             schema:
  *               $ref: '#/models/User'
+ *           example:
+ *             _id: "60c72b1f9e3d3c19e2f4b08c"
+ *             username: "john_doe"
+ *             email: "john@example.com"
  */
 
 /**
@@ -43,6 +50,9 @@ const router = Router();
  *         application/json:
  *           schema:
  *             $ref: '#/models/User'
+ *           example:
+ *             email: "john@example.com"
+ *             password: "password123"
  *     responses:
  *       200:
  *         description: The access and refresh tokens
@@ -50,6 +60,9 @@ const router = Router();
  *           application/json:
  *             schema:
  *               $ref: '#/models/Tokens'
+ *           example:
+ *             accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjAwM2RkZWYxY2E5ZDQxYTg1NTUyZjc1MGEiLCJpYXQiOjE2NjY2ODc1NTZ9.NKn-2wFFIu1x6fDxjmZ9ae3x0_oYZjdjx-1TxQNEvxM"
+ *             refreshToken: "d5da2dfb5b02310a810bbb083f3d319ae"
  */
 
 /**
@@ -64,8 +77,11 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Logout completed successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Logout completed successfully"
  */
-
 
 /**
  * @swagger
@@ -90,18 +106,17 @@ const router = Router();
  *               properties:
  *                 username:
  *                   type: string
- *                   example: "john_doe"  
+ *                   example: "john_doe"
  *       404:
  *         description: User not found
  *       500:
  *         description: Server error
  */
 
-
 router.post('/login', authController.login);
-router.post('/register',authController.register);
-router.post('/logout',authController.logout);
-router.post('/refresh',authController.refresh);
+router.post('/register', authController.register);
+router.post('/logout', authController.logout);
+router.post('/refresh', authController.refresh);
 router.get('/:id', authController.getUsernameById);
 
 export default router;

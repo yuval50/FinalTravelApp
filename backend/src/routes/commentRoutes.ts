@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import {
   addComment,
-  getAllComments,
   getCommentsByPost,
   updateComment,
   deleteComment,
@@ -11,35 +10,19 @@ import { authMiddleware } from '../controllers/authcontroller';
 const router = Router();
 
 router.post('/', authMiddleware, addComment); 
-router.get('/', getAllComments); 
-router.get('/post/:postId', getCommentsByPost); 
 router.put('/:id', authMiddleware, updateComment); 
-router.delete('/:id', authMiddleware, deleteComment); 
+router.delete('/:id', authMiddleware, deleteComment);
+router.get('/:id', authMiddleware, getCommentsByPost);
+
 export default router;
 
 
-/**
- * @swagger
- * /comments:
- *   get:
- *     summary: Get all existing comments
- *     tags: [Comments]
- *     responses:
- *       200:
- *         description: List of all comments
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Comment'
- */
 
 /**
  * @swagger
  * /comments:
  *   post:
- *     summary: Add a new comment to a user
+ *     summary: Add a new comment to a post
  *     tags: [Comments]
  *     security:
  *       - bearerAuth: []
@@ -60,33 +43,9 @@ export default router;
  *       201:
  *         description: Comment created successfully
  *       400:
- *         description: Bad request
- */
-
-/**
- * @swagger
- * /comments/post/{postId}:
- *   get:
- *     summary: Get all comments for an existing specific post
- *     tags: [Comments]
- *     parameters:
- *       - in: path
- *         name: postId
- *         schema:
- *           type: string
- *         required: true
- *         description: ID of the post
- *     responses:
- *       200:
- *         description: List of comments for the specified post
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Comment'
- *       404:
- *         description: Post not found
+ *         description: Bad request, content and postId are required
+ *       401:
+ *         description: Unauthorized, userId is required
  */
 
 /**
@@ -125,15 +84,13 @@ export default router;
  * @swagger
  * /comments/{id}:
  *   delete:
- *     summary: Delete an existing comment
+ *     summary: Delete a comment by ID
  *     tags: [Comments]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
- *         schema:
- *           type: string
+ *         name: commentId
  *         required: true
  *         description: ID of the comment to delete
  *     responses:
@@ -141,4 +98,46 @@ export default router;
  *         description: Comment deleted successfully
  *       404:
  *         description: Comment not found
+ */
+
+/**
+ * @swagger
+ * /comments:
+ *   get:
+ *     summary: Get comments for a specific post
+ *     tags: [Comments]
+ *     parameters:
+ *       - in: query
+ *         name: postId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the post to get comments for
+ *     responses:
+ *       200:
+ *         description: A list of comments for the specified post
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: "6123456789abcdef01234567"
+ *                   content:
+ *                     type: string
+ *                     example: "This is a comment"
+ *                   userId:
+ *                     type: string
+ *                     example: "6123456789abcdef01234567"
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2025-02-05T00:00:00Z"
+ *       400:
+ *         description: Bad request, postId is required
+ *       404:
+ *         description: Post not found
  */

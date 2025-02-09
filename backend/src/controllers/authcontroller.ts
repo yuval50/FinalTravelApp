@@ -149,7 +149,8 @@ const verifyRefreshToken = (refreshToken: string | undefined) => {
                 }
                 const tokens = user.refreshToken!.filter((token) => token !== refreshToken);
                 user.refreshToken = tokens;
-
+                await user.save();
+                
                 resolve(user);
             } catch (err) {
                 reject("fail");
@@ -162,10 +163,9 @@ const verifyRefreshToken = (refreshToken: string | undefined) => {
 const logout = async (req: Request, res: Response) => {
     try {
         const user = await verifyRefreshToken(req.body.refreshToken);
-        await user.save();
         res.status(200).send("success");
     } catch (err) {
-        res.status(400).send("fail");
+        res.status(400).json({ error: err });
     }
 };
 
