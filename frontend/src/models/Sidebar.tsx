@@ -27,7 +27,7 @@ const Sidebar = () => {
   const fetchUser = async (userId: string) => {
     try {
       const response = await getUsernameById(userId);
-      setUserName(response.data.username);
+      setUserName((response.data as { username: string }).username);
     } catch (error) {
       console.error('Error fetching username:', error);
       setUserName('Guest');

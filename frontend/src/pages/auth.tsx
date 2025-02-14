@@ -32,8 +32,9 @@ const Auth = () => {
         const res = await login({ email, password });
 
         // ✅ Store token and user info in localStorage
-        localStorage.setItem('token', res.data.accessToken);
-        localStorage.setItem('user', JSON.stringify(res.data._id))
+        const data = res.data as { accessToken: string; _id: string };
+        localStorage.setItem('token', data.accessToken);
+        localStorage.setItem('user', JSON.stringify(data._id))
     
         console.log('Response data:', res.data);
 

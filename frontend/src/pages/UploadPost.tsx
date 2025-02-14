@@ -37,7 +37,7 @@ const UploadPost: React.FC = () => {
           },
         });
 
-        const locationSuggestions = response.data.map((item: any) => {
+        const locationSuggestions = (response.data as any[]).map((item: any) => {
           return getShortLocation(item.address);
         });
 
@@ -75,33 +75,34 @@ const UploadPost: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // בדיקה אם לא נבחר דירוג
+  
     if (rating === 0) {
       alert("Please rate your experience before submitting.");
       return;
     }
-
-    const postData = {
-      title,
-      content,
-      location,
-      rating,
-      images: images.map((image) => URL.createObjectURL(image)),
-    };
-
+  
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("location", location);
+    formData.append("rating", rating.toString());
+    
+    images.forEach((image) => {
+      formData.append("images", image); // הוספת כל קובץ לתוך formData
+    });
+  
     try {
-      await addPost(postData);  
-      setUploadSuccess(true); 
+      await addPost(formData);
+      setUploadSuccess(true);
       setTimeout(() => {
-        navigate("/trips"); 
-      }, 1000);  
+        navigate("/trips");
+      }, 1000);
     } catch (error) {
-      console.error("Try again :", error);
+      console.error("Error uploading post:", error);
       alert("Error uploading post");
     }
   };
-
+  
   const getRatingLabel = () => {
     if (rating === 5) return "Amazing 🌟";
     if (rating === 4) return "Great 😊";
@@ -226,5 +227,6 @@ const UploadPost: React.FC = () => {
     </div>
   );
 };
+
 
 export default UploadPost;

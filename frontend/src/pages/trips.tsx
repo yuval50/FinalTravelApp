@@ -19,24 +19,13 @@ interface Post {
 const Trips = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [usernames, setUsernames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await getAllPosts();
-        const postsData = response.data;
-
-        // קריאה לפונקציה כדי להביא את שם המשתמשים עבור כל פוסט
-        const updatedPosts = await Promise.all(
-          postsData.map(async (post: Post) => {
-            const usernameResponse = await getUsernameById(post.userId);  // מחפש את שם המשתמש
-            const username = usernameResponse.data; // שליפת שם המשתמש מתוך הנתון returned
-
-            return { ...post, username };
-          })
-        );
-
-        setPosts(updatedPosts); // עדכון ה-state עם הפוסטים לאחר הוספת שם המשתמש
+        setPosts(response.data as Post[]);
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
@@ -46,6 +35,24 @@ const Trips = () => {
 
     fetchPosts();
   }, []);
+
+  // פונקציה לקבלת שם משתמש לפי userId
+  const fetchUsername = async (userId: string) => {
+    if (!usernames[userId]) {
+      try {
+        const response = await getUsernameById(userId);
+        setUsernames((prev) => ({
+          ...prev,
+          [userId]: (response.data as { username: string }).username,
+        }));
+      } catch {
+        setUsernames((prev) => ({
+          ...prev,
+          [userId]: "Unknown",
+        }));
+      }
+    }
+  };
 
   return (
     <div className="trips-container">
@@ -58,54 +65,69 @@ const Trips = () => {
           {posts.length === 0 ? (
             <p style={{ textAlign: "center" }}>No trips found</p>
           ) : (
-            posts.map((post) => (
-              <Card key={post._id} className="shadow-sm border-0 rounded-lg overflow-hidden mt-5 p-3">
-                {/* תמונת הפוסט */}
-                <div className="position-relative w-100 text-center">
-                  {post.images.length > 0 ? (
-                    <img
-                      src={post.images[0]}
-                      alt="Post"
-                      className="img-fluid rounded w-100"
-                      style={{ height: "300px", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <p>No Image Available</p>
-                  )}
-                </div>
+            posts.map((post) => {
+              if (!usernames[post.userId]) {
+                fetchUsername(post.userId); // קריאה לפונקציה כאשר אין עדיין שם משתמש
+              }
 
-                <Card.Body>
-                  {/* כותרת הפוסט */}
-                  <h5 className="text-center my-2"> {post.title}</h5>
-
-                  {/* תוכן הפוסט */}
-                  <p className="text-center">{post.content}</p>
-
-                  {/* שם מעלה הפוסט */}
-                  <div className="text-center">
-                    <span>Posted by: {}</span>
+              return (
+                <Card key={post._id} className="shadow-sm border-0 rounded-lg overflow-hidden mt-5 p-3">
+                  <div className="d-flex justify-content-end text-muted" style={{ fontSize: "0.9rem" }}>
+                    <span>
+                      {new Date(post.createdAt).toLocaleString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                    
+                  </div>
+   {/* מיקום */}
+   <div className="text-center">
+                      <span className="d-flex justify-content-end text-muted" style={{ fontSize: "0.9rem" }}>Location: {post.location}</span>
+                      
+                    </div>
+                  <div className="position-relative w-100 text-center">
+                    {post.images.length > 0 ? (
+                      <img
+                        src={post.images[0]}
+                        alt="Post"
+                        className="img-fluid rounded w-100"
+                        style={{ height: "300px", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <p></p>
+                    )}
                   </div>
 
-                  {/* מידע נוסף על הפוסט */}
-                  <div className="text-center">
-                    <span>📍 {post.location}</span>
-                  </div>
+                  <Card.Body>
+                    <h5 className="text-center my-2">{post.title}</h5>
+                    <p className="text-center">{post.content}</p>
 
-                  {/* שורה אחת עם דירוג, לייקים, תגובות ושעת העלאה */}
-                  <div className="d-flex justify-content-between mt-3 text-muted" style={{ gap: '20px' }}>
-                    <span>⭐ {post.rating} / 5</span>
-                    <span>❤️ {post.likes.length}</span>
-                    <span>💬 {post.commentsCount}</span>
-                    <span>{new Date(post.createdAt).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                  </div>
+                    {/* שם המשתמש */}
+                    <div className="text-left">
+                      <span>👤 {usernames[post.userId] || "Loading..."}</span>
+                    </div>
 
-                  {/* קישור לעמוד הפרטים */}
-                  <Link to={`/post/${post._id}`} className="btn btn-primary mt-3">
-                    View Details
-                  </Link>
-                </Card.Body>
-              </Card>
-            ))
+                 
+
+                    <div className="d-flex justify-content-between mt-3 text-muted" style={{ gap: "20px" }}>
+                      <span>⭐ {post.rating} / 5</span>
+                      <span>❤️ {post.likes.length}</span>
+                      <span>💬 {post.commentsCount}</span>
+                    </div>
+
+                    <div className="d-flex justify-content-center mt-3">
+                      <Link to={`/post/${post._id}`} className="btn btn-primary w-auto">
+                        View Details
+                      </Link>
+                    </div>
+                  </Card.Body>
+                </Card>
+              );
+            })
           )}
         </div>
       )}
