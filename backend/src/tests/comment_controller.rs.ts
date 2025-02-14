@@ -30,7 +30,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  console.log("Setting up test environment...");
 
   await request(app).post('/users/register').send({
     username: 'test_user',
@@ -71,7 +70,6 @@ describe("Comments Tests", () => {
         content: "Test Comment",
         postId: postId,
       });
-    console.log('Create post id :',postId);
     expect(response.statusCode).toBe(201);
     expect(response.body.content).toBe("Test Comment");
     commentId = response.body._id;
@@ -80,8 +78,6 @@ describe("Comments Tests", () => {
     const response = await request(app)
       .get(`/comments/${postId}`)
       .set('Authorization', `Bearer ${accessToken}`);
-    //console.log('Get comments responseeeeeeeeeeee:', response.body);
-    console.log('THE FUCK POSDT ID:', postId);
     expect(response.statusCode).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBeGreaterThanOrEqual(1);

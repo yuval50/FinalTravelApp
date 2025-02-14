@@ -4,10 +4,12 @@ import {
   getAllPosts,
   getPostById,
   updatePost,
-  deletePost,
+  deletePost, 
+   toggleLikePost,  // הוספת הפונקציה החדשה
+
 } from '../controllers/PostController';
 import { authMiddleware } from '../controllers/authcontroller';
-
+import upload  from "../routes/uploadfilests";
 const router = Router();
 
 /**
@@ -158,12 +160,58 @@ const router = Router();
  *                 message:
  *                   type: string
  *                   example: "Post deleted successfully"
+ * 
+
+ * /posts/{id}/like:
+ *   post:
+ *     summary: Like or unlike a post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the post to like/unlike
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The ID of the user liking/unliking the post.
+ *     responses:
+ *       200:
+ *         description: Post liked/unliked successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Post liked successfully"
+ *                 likes:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["userId1", "userId2"]
+ * 
  */
 
-router.post('/', authMiddleware, addPost);
+//router.post('/', authMiddleware, addPost);
+router.post("/",authMiddleware, upload.array("images", 5), addPost);
 router.get('/', getAllPosts);
 router.get('/:id', getPostById);
 router.put('/:id', authMiddleware, updatePost);
 router.delete('/:id', authMiddleware, deletePost);
+
+// קריאה ללייק/הסרת לייק לפוסט
+router.post('/:id/like', authMiddleware, toggleLikePost);
 
 export default router;

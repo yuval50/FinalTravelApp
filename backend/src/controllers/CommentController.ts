@@ -30,12 +30,16 @@ export const addComment = async (req: Request, res: Response): Promise<void> => 
 
 
 export const getCommentsByPost = async (req: Request, res: Response): Promise<void> => {
-  const postId = req.params.id;
-  //console.log("Post ID received:", postId);  
-
   try {
-    const comments = await CommentModel.find({ postId });
-    
+    const postId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      res.status(400).json({ message: 'Invalid post ID' });
+      return;
+    }
+
+    const comments = await CommentModel.find({ postId: new mongoose.Types.ObjectId(postId) });
+
     if (comments.length === 0) {
       res.status(404).json({ message: 'No comments found for this post' });
       return;

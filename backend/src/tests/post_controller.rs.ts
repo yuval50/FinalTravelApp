@@ -32,7 +32,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  console.log("Setting up test environment...");
 
   await request(app).post('/users/register').send({
     username: 'user1',
@@ -134,5 +133,15 @@ describe("Posts Tests", () => {
       });
 
     expect(response.statusCode).toBe(400);
+  });
+
+
+  test("Test Like Post", async () => {
+    const response = await request(app)
+      .post(`/posts/${postId}`)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.likes).toContainEqual(expect.objectContaining({ userId: expect.any(String) }));
   });
 });

@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import userRoutes from './routes/authroutes';
 import postRoutes from './routes/postRoutes';
 import commentRoutes from './routes/commentRoutes';
+import path from 'path';
 
 
 import cors from "cors";
@@ -31,6 +32,7 @@ app.use('/users', userRoutes);
 app.use('/posts', postRoutes);
 app.use('/comments', commentRoutes);
 
+app.use("/images", express.static(path.join(__dirname, "../public/images")));
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI!)
